@@ -1,49 +1,68 @@
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { addTask } from './redux/action/AddTaskAction'
 import { chooseType } from './redux/action/TypeAction'
 import { createSelector } from 'reselect'
-import {connect } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 const AppHook = (props) => {
 
-  useEffect(() => {
-    console.log(" PROPS-----", props)
-  }, [props.task])
 
   const [text, setText] = useState("");
-  
+  const getTodo = state => state.TaskReducer.task_state
+  const getVisibilityFilter = state => state.TypeReducer.type;
+  const getVisibleTodos = createSelector(
+    [getVisibilityFilter, getTodo],
+    (visibilityFilter, todos) => {
+      switch (visibilityFilter) {
+        case 'ALL':
+          return todos
+        case 'COMPLETED':
+          return todos.filter(t => t.isDone)
+        case 'ACTIVE':
+          return todos.filter(t => !t.isDone)
+        default  : return todos;
+      }
+    }
+  )
+  const task = useSelector(getVisibleTodos)
+  const dispatch = useDispatch()
+
+  // useEffect(() => {
+  //   console.log(" PROPS-----", currentUser)
+  // }, [props.task])
+
 
   const handleSubmit = () => {
-    var task = {
+    var newtask = {
       name: text,
       isDone: false
     }
-    let canAdd = true ; 
-    props.task.map(item => {
+    let canAdd = true;
+    task.map(item => {
       if (item.name === text) {
         canAdd = false;
       }
     })
 
-    if(canAdd){
-      if ( text.length === 0) {
+    if (canAdd) {
+      if (text.length === 0) {
         alert('Nhập task ------')
       } else {
-       props.addTask(task)
-       
+        dispatch(addTask(newtask))
       }
     }
     else {
       alert('Task đã có ------')
     }
-  
+
   }
 
   const chooseRender = () => {
+    console.log("REDUX  HOOK  --------", task)
     return (
       <ul>
         {
-          props.task.map((item, index) =>
+          task.map((item, index) =>
             <div class="renderItem"
               onClick={() => changeStatus(item)}
             >
@@ -62,7 +81,7 @@ const AppHook = (props) => {
   }
 
   const changeStatus = (val) => {
-    props.task.map(item => {
+    task.map(item => {
       if (item.name === val.name) {
         if (item.isDone) {
           item.isDone = false;
@@ -74,7 +93,6 @@ const AppHook = (props) => {
   }
 
   return (
-
     <div class="app-container">
       <h3> DEMO FOR REACT HOOK  </h3>
       <div>
@@ -96,16 +114,16 @@ const AppHook = (props) => {
       <div style={{ flexDirection: 'row', width: 400, alignItems: 'center' }}>
 
         <span style={{ fontSize: 20, marginLeft: 20 }}>
-          All items {' '}    {props.task.length}
+          All items {' '}    {task.length}
         </span>
         <div style={{ float: 'right', alignItems: 'center' }}>
-          <button onClick={() => props.chooseType('ALL')}>
+          <button onClick={() => dispatch(chooseType('ALL'))}>
             ALL
           </button>
-          <button onClick={() => props.chooseType('ACTIVE')}>
+          <button onClick={() => dispatch(chooseType('ACTIVE'))}>
             ACTIVE
           </button>
-          <button onClick={() => props.chooseType('COMPLETED')}>
+          <button onClick={() => dispatch(chooseType('COMPLETED'))}>
             COMPLETE
           </button>
         </div>
@@ -113,31 +131,7 @@ const AppHook = (props) => {
     </div>
   );
 }
-
-const getVisibilityFilter = (state) => state.TypeReducer.type;
-
-const getTask = (state) => state.TaskReducer.task_state;
-
-const getVisibleTodos = createSelector(
-  [getVisibilityFilter, getTask],
-  (visibilityFilter, task) => {
-    switch (visibilityFilter) {
-      case 'ALL':
-        return task ;
-      case 'COMPLETED':
-        return task.filter(t => t.isDone === true) 
-      case 'ACTIVE':
-        return task.filter(t => t.isDone === false)
-    }
-  }
-)
-
-const mapStateToProps = state => {
-  return {
-    task: getVisibleTodos(state),
-  }
-}
-export default connect(mapStateToProps, {  addTask, chooseType })(AppHook)
+export default AppHook
 const ItemRender = (props) => {
   const [status, setStatus] = useState(props.item.isDone)
   const setStatusItem = () => {

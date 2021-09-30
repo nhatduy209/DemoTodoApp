@@ -10,7 +10,7 @@ const store = configureStore({
    reducer: {
       TypeReducer,
       TaskReducer,
-      TaskToolkitReducer: TaskToolkitReducer
+      // TaskToolkitReducer: TaskToolkitReducer
    },
 });
 

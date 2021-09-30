@@ -19,8 +19,8 @@ import store from './redux/Store'
 ReactDOM.render(
   <Provider store = {store} >
    {/*  <App /> */}
-    {/* <AppHook /> */}
-    <AppHookToolkit/>
+    <AppHook />
+    {/* <AppHookToolkit/> */}
   </Provider>
 
   ,
