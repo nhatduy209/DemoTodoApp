@@ -27,11 +27,6 @@ const AppHook = (props) => {
   const task = useSelector(getVisibleTodos)
   const dispatch = useDispatch()
 
-  // useEffect(() => {
-  //   console.log(" PROPS-----", currentUser)
-  // }, [props.task])
-
-
   const handleSubmit = () => {
     var newtask = {
       name: text,
